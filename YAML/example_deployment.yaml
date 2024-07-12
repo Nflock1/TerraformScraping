@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example_deployment_name
+  namespace: example_deployment_namespace
+  labels:
+    app: example_app_02
+spec:
+  #number of replica sets to keep stored to allow for rollback
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: example_app_02 
+  template:
+    metadata:
+      labels:
+        app: example_app_02
+    spec:
+      containers:
+        - name: example_deployment_container
+          image: example_image
+          imagePullPolicy: Always
+          resources:
+            #maximum resources a pod can use
+            limits:
+              cpu: "800m"
+              memory: "512Mi"
+            #minimum resources wanted by pod
+            requests:
+              cpu: "230m"
+              memory: "128Mi"
+          ports:
+            - name: http
+              containerPort: 6543
+          livenessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 6543
+            #this is for pod startup time
+            initialDelaySeconds: 30
+            #This is how often to check
+            periodSeconds: 30
+            #number of times this check must fail before a restart
+            failureThreshold: 2
+            #number of seconds before request times out and auto-fails
+            timeoutSeconds: 2
+          env:
+            - name: ex_01
+              value: lorem ipsum
+            - name: ex_02
+              value: lorem ipsum 321
+            - name: ex_03
+              value: 6461612654214654
+            - name: ex_04
+              value: lorem ipsum 123
+              #wrap in quotes because JSON parsing results in quotes around an object in the env file to not be written
+            - name: ex_05
+              valueFrom:
+                secretKeyRef:
+                  name: ex_05
+                  key: key_01
+            - name: ex_06
+              valueFrom:
+                secretKeyRef:
+                  name: ex_06
+                  key: key_02
+            - name: ex_07
+              valueFrom:
+                secretKeyRef:
+                  name: ex_07
+                  key: key_03
+      imagePullSecrets:
+        - name: registrypullsecret

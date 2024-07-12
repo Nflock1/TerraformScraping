@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: example_stateful_set_name
+  namespace: example_stateful_set_namespace
+spec:
+  selector:
+    matchLabels:
+      app: example_app_01
+  serviceName: example_service_name
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: example_app_01
+    spec:
+      containers:
+        - name: example_container
+          image: fake_image_tag
+          env:
+            - name: ex_01
+              value: lorem ipsum
+            - name: ex_02
+              value: lorem ipsum 321
+            - name: ex_03
+              value: 6461612654214654
+            - name: ex_04
+              value: lorem ipsum 123
+              #wrap in quotes because JSON parsing results in quotes around an object in the env file to not be written
+            - name: ex_05
+              valueFrom:
+                secretKeyRef:
+                  name: ex_05
+                  key: key_01
+            - name: ex_06
+              valueFrom:
+                secretKeyRef:
+                  name: ex_06
+                  key: key_02
+            - name: ex_07
+              valueFrom:
+                secretKeyRef:
+                  name: ex_07
+                  key: key_03
+          ports:
+          - name: http
+            containerPort: 3456
+          volumeMounts:
+          - name: data
+            mountPath: /data
+            readOnly: false
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"] 
+      resources:
+        requests:
+          storage: 5Mi

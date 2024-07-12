@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+# This cluster role binding allows anyone in the "deploy-code" group to read secrets in any namespace.
+kind: RoleBinding
+metadata:
+  name: SSO-binding
+  namespace: example_namespace
+subjects:
+- kind: User
+  name: SSOUserRole # Name is case sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: SSO
+  apiGroup: rbac.authorization.k8s.io

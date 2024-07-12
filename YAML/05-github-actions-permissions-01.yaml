@@ -1,0 +1,11 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: example_namespace
+  name: manager
+rules:
+- apiGroups: ["apps", ""] # name of group to be specified when linking IAM users
+  #resources and verbs visible with command "kubectl api-resources --sort-by name -o wide" (verbs on right hand side)
+  resources: ["deployments", "secrets", "statefulsets"]
+  # only 3 of the available verb are needed: ["create","update","get", "watch", "list", "patch", "delete", "deletecollection"] 
+  verbs: ["create", "get", "patch"] 
