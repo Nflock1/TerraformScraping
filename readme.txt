@@ -45,3 +45,8 @@ Once I get some of the last kinkes related to translating formatting anomolies (
 ironed out, I would also like to execute a full test where I translate some working kubernetes
 files into .tf and deploy them onto AWS or some other hosting platform to verify that this 
 tool would work the way I intended it to be and to identify any shortcomings in the user experience.
+
+Ladtly, I think it would be cool to include some functionality for linking resource trees together:
+there are times where attributes within one resource are specified in a redirect to another resource
+doc (like the volume claim spec in the deployment resource). Right now this creates a bit of a gap
+in translating the more complex YAMLs that would be nice to close.

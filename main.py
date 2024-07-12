@@ -163,7 +163,6 @@ def scrape(URL, resource, resource_version):
       # subroutine for identifying if this phrasing is used directly after "argument Reference" header
       run_loop = True
       look_back_depth = 1
-      #TODO: may be best running a for loop on this? OR while look_back_depth<=index
       while run_loop:
         #find last non-whitespace line and check it for arg ref header to determine if it shuold be ignored
         if len(lines[index - look_back_depth].strip()) > 0 and re.search(r"[aA]rgument [Rr]eference", lines[index - look_back_depth]) is None: # "Argument Reference" not in lines[index - look_back_depth]:
@@ -173,7 +172,6 @@ def scrape(URL, resource, resource_version):
           run_loop = False
         look_back_depth += 1
     elif skip_the_following_lines == True:
-      # TODO: '*' should probs be indent_symbol
       if skipping_the_following_body == False:
         if len(text.strip()) == 0:
           continue
@@ -204,15 +202,11 @@ def scrape(URL, resource, resource_version):
         concise_data.append({multi_block.group(3).strip(): {'children': {}, 'has_parent': False, "can_have_children": True}})
         double_flag = True
     
-    # future todo: How could I handle children attributes referenced in other docs? look for links in the description to other 
-    # terraform resource docs and explore deeper? ex: volume claim spec in deployments
-    
     # recognize children of attribute header
     argument = re.search(fr'(\*\s\`)(.*?)(\`)', text)
     if argument is None:
       continue      
 
-    # todo: may want to search just the description instead of the whole line?
 
     # NOTE: some number type attributes are not recognized with "[nN]umber of". Most 
     #       are and it's safer to not diqualify these niche cases from having children
@@ -235,8 +229,9 @@ def scrape(URL, resource, resource_version):
   # first loop finds the repeated naming conventions and linkes them to the proper parent to avoid circular dependancies
   for data in concise_data:
     data_key = list(data.keys())[0]
+    #NOTE: this is an anomoly where the attribute "pod security_context" links to "spec" parent instead 
+    # of "pod" like every other entry in the docs... (this hardcode skip isn't permanent)
     if "deployment" in k8s_hashicorp_document["attributes"]["slug"] and "pod security_context" in data_key:
-      #NOWTODO: wth is this - need to map pod to the template?
       continue
     if " " in data_key:
       split_name = data_key.split(" ")
@@ -285,8 +280,6 @@ def scrape(URL, resource, resource_version):
   # first element should be assembled tree
   return concise_data[0]
 
-  # todo: parse which fields are required vs optional to help giv euser feedback on files
-
 # Purpose:
 #   This function is designed to pre-process YAML env blocks into a format that is more intuitive for the 
 #   interpretation software (each variable in a single k8s YAML env block need's its own env blcok in .tf).
@@ -315,9 +308,7 @@ def process_env_block(original_file_lines, initial_index):
     if re.search(r'^-.*', this_line):
       last_line = original_file_lines[i-1].strip()
       # new block identified
-      #todo: should make sure it starts with a dash via regex
       if "env:" in last_line:
-        #todo: imporve with regex
         processed_env_lines.append(" " * (env_indent_level + 2) + this_line.lstrip("- "))
       else:
         #processed_env_lines.append(" " * env_indent_level + "}")
@@ -338,7 +329,6 @@ def process_env_block(original_file_lines, initial_index):
 #    An array of file lines that is processed
 def pre_process(original_file_lines):
   pre_processed_lines = original_file_lines.copy()
-  # todo: need to make correct deep copy of original lines.
   for i in range(0, len(original_file_lines)):
       if re.search(r"\s+env:.*", original_file_lines[i]):
         pre_processed_lines = process_env_block(pre_processed_lines, i)
@@ -410,7 +400,6 @@ def main():
       if kind is None:
         #useful file info starts here
         if KV_pair[0] == "kind":
-          #TODO: this needs to be camel case
           kind = KV_pair[1].lower()
           if re.search(r"(?<=[a-z])(?=[A-Z])", KV_pair[1]) is not None:
             #convert to snake case when camel case detected
