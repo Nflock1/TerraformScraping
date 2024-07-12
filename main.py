@@ -3,6 +3,7 @@ import os, shutil, requests, re, json
 extra_data_flag = False
 cache_resource_trees = False
 
+# function to help with debugging
 def print_array(arr):
   for element in arr:
     print(element.strip() if isinstance(element, str) else element)
@@ -290,6 +291,7 @@ def scrape(URL, resource, resource_version):
 #       This is the line number that the env block starts on within the original_file_lines array
 # returns :
 #    An array of file lines that swaps the original env block with a new set of processed file lines.
+
 def process_env_block(original_file_lines, initial_index):
   processed_env_lines = []
   env_indent_level = len(original_file_lines[initial_index]) - len(original_file_lines[initial_index].lstrip())
@@ -327,6 +329,7 @@ def process_env_block(original_file_lines, initial_index):
 #       An array of the YAML file lines taken from the file that needs to be interpreted
 # returns :
 #    An array of file lines that is processed
+
 def pre_process(original_file_lines):
   pre_processed_lines = original_file_lines.copy()
   for i in range(0, len(original_file_lines)):
